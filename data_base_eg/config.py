@@ -2,9 +2,7 @@
 # -*- coding:utf8 -*-
 
 # db config
-MYSQL_IP = 'ci.amiintellect.com'
-MYSQL_USER = 'test'
-MYSQL_PASS = 'test#6305'
+
 MYSQL_DB = 'ami_ocr_core_dev'
 SQLALCHEMY_DATABASE_URI = 'mysql://' + MYSQL_USER + ':' + MYSQL_PASS + '@' \
                           + MYSQL_IP + '/' + MYSQL_DB
