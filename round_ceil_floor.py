@@ -33,8 +33,9 @@ print(Context(prec=4, rounding=ROUND_HALF_UP).create_decimal('0.3255'))
 
 #利用’’%.af’’%b——其中 b 代表要限定的数字， a 代表要求限定小数点的位数，结果自动四舍五入。
 c = 1.264871331241212
-data=[22.5555,22.5551,23.5555,23.5551]
-for each in data:
-    print("%.3f"%each)
+# for each in data:
+#     print("%.3f"%each)
 
+data=[[22.4999,22.5551,23.5555,23.5551],[22.5555,22.5551,23.5555,23.5551]]
 print(np.round(data,decimals=3))
+print(type(np.round(1.23456,decimals=3)))
