@@ -3,12 +3,15 @@
 def f1():
     a=3
     b=2
-    for i in range(1):
+    for i in range(3):
+        #加try异常判断，整个循环过程就会执行到底；如果不加，遇到异常就会退出运行；
+        #但是try里面，报错之后剩下的语句就没有执行了。
+        print('i={}'.format(i))
         try:
             a = a - 1
-            c=b/0
-            int('哈哈')
-            print(c)
+            c=b/1
+            print('哈哈')
+            # print(c)
 
         except Exception as e:
             print('e',e)
@@ -43,4 +46,5 @@ def safe_float2(obj):
    
 if __name__=='__main__':
     # safe_float(int)
-    safe_float2('')
+    # safe_float2('')
+    f1()
