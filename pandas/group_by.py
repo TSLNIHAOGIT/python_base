@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-df=pd.DataFrame([[1,2],[3,5],[1,2],[5,4],[5,4]],columns=['a','b'])
+df=pd.DataFrame([[1,3],[None,5],[1,3],[1,4],[5,4]],columns=['a','b'])
 print(df)
 # print(df.groupby(['a'])['b'].count().reset_index())
 df_new=df.groupby(['a'])['a'].count()#.rename(columns={0:'a_count'})
@@ -9,13 +9,13 @@ print(df_new.to_frame().rename(columns={'a':'a_count'}).reset_index())
 # print(df.groupby(['a'])['b'].size().reset_index())
 
 
-features=['a','b']
-temp = df.groupby(features).count().reset_index().rename(columns={0: 'new_feature'})
-print('t1',temp)
+features=['a']
+temp = df.groupby(features).count()#.reset_index().rename(columns={0: 'new_feature'})
+print('temp_count',temp)
 
 
-temp = df.groupby(features).size().reset_index().rename(columns={0: 'new_feature'})
-print(temp)
+temp = df.groupby(features).size()#.reset_index().rename(columns={0: 'new_feature'})
+print('temp_size',temp)
 def count_encode(X, categorical_features, normalize=True):
     ##不需要join
     print('Count encoding: {}'.format(categorical_features))
@@ -33,11 +33,11 @@ def count_encode(X, categorical_features, normalize=True):
         X_ = X_.astype(np.uint32)
     return X_
 
-count_encoding=count_encode(X=df, categorical_features=['a'], normalize=False)
-print(count_encoding)
-print(df['a'].value_counts().to_dict())
-print(df['a'].unique())
-print(df['a'].nunique())
+# count_encoding=count_encode(X=df, categorical_features=['a'], normalize=False)
+# print(count_encoding)
+# print(df['a'].value_counts().to_dict())
+# print(df['a'].unique())
+# print(df['a'].nunique())
 
 # features=['a','b','c']
 # new_feature = 'count'
@@ -77,4 +77,18 @@ def feature_count(data, features=[], is_feature=True):
         data.loc[data.day == 3, new_feature] = data[data.day == 3][new_feature] * 4
     return data
 
-feature_count(data=df, features=['a','b'], is_feature=True)
+dd=feature_count(data=df, features=['a'], is_feature=True)
+print('dd',dd)
+print(df)
+# print(df['a']+1)
+index_col=['a']
+feature='b'
+gp1 = df.groupby(index_col)[feature].nunique().reset_index().rename(columns={feature: 'feat_new'})
+print('gp1',gp1)
+##行数（count）和唯一值（unique）是不同的概念；count可以直接使用groupby size都不用关心后面的列，因为只是统计行数；
+  #而nunique是要用到后面的列具体信息的（因为不是行数（与内容无关）），这个需要具体的内容；
+  #例如3行，唯一值只有2个
+
+###与count用法一样
+gp2= df.groupby('a').nunique()#.reset_index().rename(columns={feature: 'feat_new'})
+print('gp2',gp2)
