@@ -1,8 +1,11 @@
 #python3.6开始dict已经变得有序
-data_dict={1:3,2:4,6:8,3:5,9:7,12:8}
+
+
+# data_dict={1:3,2:4,6:8,3:5,9:7,12:8}
+data_dict={'&': 5, 'China': 4, 'Loading': 1, 'Place': 2, 'To': 0}
 print(data_dict.keys())
 dd=data_dict.items()
-dd=sorted(dd)
+dd=sorted(dd,key=lambda x:x[1])
 print('dd',dd)
 print('redict',dict(dd).keys())
 def list_sort():

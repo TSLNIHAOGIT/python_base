@@ -18,24 +18,25 @@ def multiple_replace(text, adict):
 print(multiple_replace(sentence,{'Brazi ':'Brazi-loc ','pres ':'pres_s '}))
 
 
-import re
-def dashrepl(matchobj):
-     print(matchobj.group())
-     if matchobj.group(0) == '-':
-           return '***'
-     else:
-           return '+++'
-print(re.sub('-{1,2}', dashrepl, 'pro-----gram---files'))
-
-print(re.sub(r'\sAND\s', ' & ', 'Baked Beans And Spam', flags=re.IGNORECASE))
-# 'Baked Beans & Spam')
-
-input_data='0:品牌类型1:出口享惠情况2:稀土元素的重量百分比,以[A]表示3:GTIN4:CAS'
-def fun(match):
-    # if match.group(0)=='1:':
-    #     return '1111'
-    # else :
-    #     return '0000'
-    return '{}_**'.format(match.group(0))
-
-print(re.sub('\d:',fun,input_data))
+# import re
+# def dashrepl(matchobj):
+#      print(matchobj.group())
+#      if matchobj.group(0) == '-':
+#            return '***'
+#      else:
+#            return '+++'
+# print(re.sub('-{1,2}', dashrepl, 'pro-----gram---files'))
+#
+# print(re.sub(r'\sAND\s', ' & ', 'Baked Beans And Spam', flags=re.IGNORECASE))
+# # 'Baked Beans & Spam')
+#
+# input_data='0:品牌类型1:出口享惠情况2:稀土元素的重量百分比,以[A]表示3:GTIN4:CAS'
+# def fun(match):
+#     #函数会被使用多次，匹配一次使用一次
+#     # if match.group(0)=='1:':
+#     #     return '1111'
+#     # else :
+#     #     return '0000'
+#     return '{}_**'.format(match.group(0))
+#
+# print(re.sub('\d:',fun,input_data))
