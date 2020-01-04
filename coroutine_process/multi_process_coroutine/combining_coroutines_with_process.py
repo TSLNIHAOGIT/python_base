@@ -23,6 +23,8 @@ def sub_loop(urls):
     asyncio.set_event_loop(loop)
     tasks = [get(url) for url in urls]
     results = loop.run_until_complete(asyncio.gather(*tasks))
+
+    ##这是所有的任务已经完成了
     print('res000',results)
     # for num, result in results:
     #     print('fetch({}) = {}'.format(num, result))
@@ -36,10 +38,10 @@ async def run(executor, urls=None):
     loop = asyncio.get_event_loop()
     url = 'http://127.0.0.1:5000'
     urls = [url for _ in range(500)]
-    await loop.run_in_executor(executor, sub_loop,urls)
+    results=await loop.run_in_executor(executor, sub_loop,urls)
     # await asyncio.get_event_loop().run_in_executor(executor, sub_loop,urls)
     # results = [t.result() for t in completed]
-    # log.info('results: {!r}'.format(results))
+    log.info('results: {!r}'.format(results))
     #
     # log.info('exiting')
 def get_url(url):
@@ -141,7 +143,7 @@ if __name__ == '__main__':
 
     # Create a limited process pool.
     executor = concurrent.futures.ProcessPoolExecutor(
-        max_workers=1,
+        max_workers=4,
     )
 
     event_loop = asyncio.get_event_loop()

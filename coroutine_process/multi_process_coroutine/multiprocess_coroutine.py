@@ -4,11 +4,18 @@ import time
 from aiomultiprocess import Pool
 
 start = time.time()
-
+import numpy as np
+async def compute_dot():
+    print('go compute')
+    res=np.dot(np.random.random((7000, 1000)), np.random.random((1000, 7000)))
+    print('res',res)
+    return res
 async def get(url):
     session = aiohttp.ClientSession()
     response = await session.get(url)
     result = await response.text()
+    # result_temp=await compute_dot()
+    # result=str(result)+str(result_temp)
     #在close前加上await否则显示close is not awaited
     await session.close()
     return result
@@ -28,4 +35,4 @@ if __name__=='__main__':
     loop.run_until_complete(task)
 
     end = time.time()
-    print('Cost time:', end - start)
+    print('Cost time:', end - start)#Cost time: 194.59068775177002
