@@ -46,7 +46,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         workers = int(sys.argv[1])
     else:
-        workers = None
+        workers = 1
     main(workers)
     '''
     1 workers, elapsed time: 6.07s
@@ -66,4 +66,16 @@ if __name__ == '__main__':
 6.07 2.25 6 workers 2.697777777777778
 6.07 2.33 7 workers 2.6051502145922747
 6.07 2.3 8 workers 2.6391304347826092
+384.0 KB
+362.7 KB
+341.3 KB
+320.0 KB
+298.7 KB
+277.3 KB
+256.0 KB
+234.7 KB
+213.3 KB
+192.0 KB
+170.7 KB
+149.3 KB
     '''

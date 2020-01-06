@@ -18,7 +18,7 @@ import sys
 import time
 from concurrent import futures
 from random import randrange
-JOBS = 12
+# JOBS = 12
 SIZE = 2**18
 
 KEY = b"'Twas brillig, and the slithy toves\nDid gyre"
@@ -38,10 +38,33 @@ async def request():
     print('Get response from', url, 'Result:', result)
     return result
 
+def process_start(each_jobs):
+    sss=time.time()
+    tasks=[]
+    # loop=asyncio.get_event_loop()
+    # for name in namelist:
+    #     tasks.append(asyncio.ensure_future(hello(name)))
+    # loop.run_until_complete(asyncio.wait(tasks))
 
-def arcfour_test(size, key):
+    for i in range(each_jobs, 0, -1):
+        size = SIZE + int(SIZE / each_jobs * (i - each_jobs / 2))
+        ## 往线程池里面加入一个task，返回future对象，对于Future对象可以简单地理解为一个在未来完成的操作。
+        tasks.append(asyncio.ensure_future(arcfour_test(size, KEY)))
+
+    tasks_url = [asyncio.ensure_future(request()) for _ in range(100)]
+    tasks.extend(tasks_url)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(asyncio.wait(tasks))
+    print('cost time',time.time()-sss)
+    print('tasks',tasks)
+    # for each in tasks:
+    #     print('res',each.result()/2**10)
+    return tasks
+
+
+async def arcfour_test(size, key):
     in_text = bytearray(randrange(256) for i in range(size))
-    cypher_text = arcfour(key, in_text)
+    cypher_text =  arcfour(key, in_text)
     out_text = arcfour(key, cypher_text)
     assert in_text == out_text, 'Failed arcfour_test'
     return size
@@ -53,14 +76,18 @@ def main(workers=None):
     t0 = time.time()
 
     ## 创建一个最大可容纳workers个task的线程池
+    # with futures.ThreadPoolExecutor(workers) as executor:
     with futures.ProcessPoolExecutor(workers) as executor:
         t00 = time.time()
         actual_workers = executor._max_workers
         to_do = []
-        for i in range(JOBS, 0, -1):
-            size = SIZE + int(SIZE / JOBS * (i - JOBS/2))
+
+        # process_start(each_jobs)
+        jobs_all=[12,20,15,14]
+        for i in jobs_all:
+
             ## 往线程池里面加入一个task，返回future对象，对于Future对象可以简单地理解为一个在未来完成的操作。
-            job = executor.submit(arcfour_test, size, KEY)
+            job = executor.submit(process_start,i)
             to_do.append(job)
 
         for future in futures.as_completed(to_do):
@@ -75,7 +102,16 @@ if __name__ == '__main__':
         workers = int(sys.argv[1])
     else:
         workers = 2
-    main(workers)
+
+
+    if workers:
+        workers = int(workers)
+    t0 = time.time()
+
+    ## 创建一个最大可容纳workers个task的线程池
+    #
+    # main(workers)
+    process_start(each_jobs=12)
     '''
     1 workers, elapsed time: 6.07s
 2 workers, elapsed time: 3.29s
@@ -95,3 +131,30 @@ if __name__ == '__main__':
 6.07 2.33 7 workers 2.6051502145922747
 6.07 2.3 8 workers 2.6391304347826092
     '''
+'''
+res 393216
+res 371370
+res 349525
+res 327680
+res 305834
+res 283989
+res 262144
+res 240299
+res 218454
+res 196608
+res 174763
+res 152918
+
+384.0 KB
+362.7 KB
+341.3 KB
+320.0 KB
+298.7 KB
+277.3 KB
+256.0 KB
+234.7 KB
+213.3 KB
+192.0 KB
+170.7 KB
+149.3 KB
+'''

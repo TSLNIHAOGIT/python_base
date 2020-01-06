@@ -14,9 +14,11 @@ import time
 from concurrent import futures
 from random import randrange
 from coroutine_process.multi_process_coroutine.arcfour import arcfour
-JOBS = 12
-SIZE = 2**18
+import math
 
+SIZE = 2**18
+all_num_list=range(12)
+JOBS = len(all_num_list)
 KEY = b"'Twas brillig, and the slithy toves\nDid gyre"
 STATUS = '{} workers, elapsed time: {:.2f}s'
 async def arcfour_test(size, key):
@@ -42,43 +44,63 @@ async def get(url):
     #在close前加上await否则显示close is not awaited
     await session.close()
     return result
-def sub_loop(urls):
+def sub_loop(each_num_list):
+    print('each_num_list',each_num_list)
     log = logging.getLogger('run_subloop')
     log.info('go sub_loop')
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks_cpu=[]
+
     # tasks = [get(url) for url in urls]
-    for i in range(JOBS, 0, -1):
+    # for i in range(JOBS, 0, -1):
+    # for i in range(len(each_num_list),0,-1):
+    for i in each_num_list:
         size = SIZE + int(SIZE / JOBS * (i - JOBS / 2))
         tasks_cpu.append(arcfour_test( size, KEY))
     # tasks.extend(tasks_cpu)
     tasks=tasks_cpu
+    ##该组任务，必须完成之后才能继续做下面的，且该组任务只能有一个进程控制
     results = loop.run_until_complete(asyncio.gather(*tasks))
 
     ##这是所有的任务已经完成了
-    print('res000',results)
+    # print('res000',results)
+    for each in results:
+        print('{:.1f} KB'.format(each/2**10))
     # for num, result in results:
     #     print('fetch({}) = {}'.format(num, result))
     return results
 
 
-async def run(executor, urls=None):
+async def run(executor, each_num_list=None):
+    logging.basicConfig(
+        level=logging.INFO,
+        format='PID %(process)5s %(name)18s: %(message)s',
+        stream=sys.stderr,
+    )
     log = logging.getLogger('run_blocking_tasks')
     log.info('starting')
     log.info('creating executor tasks')
     loop = asyncio.get_event_loop()
-    url = 'http://127.0.0.1:5000'
-    urls = [url for _ in range(100)]
+    # url = 'http://127.0.0.1:5000'
+    # urls = [url for _ in range(100)]
     print('excutor',executor)
-    results=await loop.run_in_executor(executor, sub_loop,urls)
+    results=await loop.run_in_executor(executor, sub_loop,each_num_list)
 
     # await asyncio.get_event_loop().run_in_executor(executor, sub_loop,urls)
     # results = [t.result() for t in completed]
     log.info('results: {!r}'.format(results))
     print('gogo')
 
+
+def chunks(list_num, size):
+
+    n = math.ceil(len(list_num) / size)
+
+    for i in range(0, len(list_num), n):
+
+        yield list_num[i:i + n]
 if __name__ == '__main__':
     start=time.time()
     # Configure logging to show the id of the process
@@ -91,7 +113,7 @@ if __name__ == '__main__':
 
     # Create a limited process pool.
     executor = concurrent.futures.ProcessPoolExecutor(
-        max_workers=2,
+        max_workers=3,
         #max_workers=1,36.5468909740448
         #4,34.53132891654968
     )
@@ -99,12 +121,17 @@ if __name__ == '__main__':
     event_loop = asyncio.get_event_loop()
     try:
         ss=time.time()
-        event_loop.run_until_complete(
-            # run_blocking_tasks(executor)
-            # run_blocking_tasks_request(executor)
-            run(executor)
-        )
+        tasks = [run(executor, chunked) for chunked in chunks(all_num_list, 3)]
+        res=event_loop.run_until_complete(asyncio.gather(*tasks))
+        # event_loop.run_until_complete(
+        #     # run_blocking_tasks(executor)
+        #     # run_blocking_tasks_request(executor)
+        #     run(executor)
+        # )
         print('{} workers cost time final'.format(executor._max_workers),time.time()-ss)
+        # print('res',res)
+        # for each in res:
+        #     each.result()
     finally:
         event_loop.close()
     print(time.time()-start)#100个url,10进程耗时32s
@@ -116,6 +143,10 @@ if __name__ == '__main__':
 ###这里的逻辑估计是多个进程，每个进程独立并行的运行并控制多个协程
 
 ##要求对于多并发IO高效，同样要求对于cpu密集型，能体现出多进程的优势
+##之前的测试方式都不对：由于每个exextuor为一个进程，控制一个协程函数，而且只能接受非阻塞的函数，
+  ##因此需要将任务分组让每个excetuor得到差不多的任务，然后并行的运行。
+  即由于run_in_executor并不能传入异步的函数，我们不能按照例子2来用。独立使用队列其实效果应该和ThreadPoolExecutor差不多，
+  那我们可不可以把任务平均切分一下，尽量让每个线程拿到的任务差不多
 
 
 '''
