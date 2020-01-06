@@ -44,8 +44,8 @@ async def get(url):
     #在close前加上await否则显示close is not awaited
     await session.close()
     return result
-def sub_loop(each_num_list):
-    print('each_num_list',each_num_list)
+def sub_loop(each_num_list,each_urls):
+    # print('each_num_list',each_num_list)
     log = logging.getLogger('run_subloop')
     log.info('go sub_loop')
 
@@ -53,45 +53,41 @@ def sub_loop(each_num_list):
     asyncio.set_event_loop(loop)
     tasks_cpu=[]
 
-    # tasks = [get(url) for url in urls]
+    tasks = [get(url) for url in each_urls]
     # for i in range(JOBS, 0, -1):
     # for i in range(len(each_num_list),0,-1):
     for i in each_num_list:
         size = SIZE + int(SIZE / JOBS * (i - JOBS / 2))
         tasks_cpu.append(arcfour_test( size, KEY))
-    # tasks.extend(tasks_cpu)
-    tasks=tasks_cpu
+    tasks.extend(tasks_cpu)
+    # tasks=tasks_cpu
     ##该组任务，必须完成之后才能继续做下面的，且该组任务只能有一个进程控制
     results = loop.run_until_complete(asyncio.gather(*tasks))
 
     ##这是所有的任务已经完成了
     # print('res000',results)
-    for each in results:
-        print('{:.1f} KB'.format(each/2**10))
+    # for each in results:
+    #     print('{:.1f} KB'.format(each/2**10))
     # for num, result in results:
     #     print('fetch({}) = {}'.format(num, result))
     return results
 
 
-async def run(executor, each_num_list=None):
-    logging.basicConfig(
-        level=logging.INFO,
-        format='PID %(process)5s %(name)18s: %(message)s',
-        stream=sys.stderr,
-    )
+async def run(executor, each_num_list=None,each_urls=None):
+
     log = logging.getLogger('run_blocking_tasks')
     log.info('starting')
     log.info('creating executor tasks')
     loop = asyncio.get_event_loop()
     # url = 'http://127.0.0.1:5000'
     # urls = [url for _ in range(100)]
-    print('excutor',executor)
-    results=await loop.run_in_executor(executor, sub_loop,each_num_list)
+    # print('excutor',executor)
+    results=await loop.run_in_executor(executor, sub_loop,each_num_list,each_urls)
 
     # await asyncio.get_event_loop().run_in_executor(executor, sub_loop,urls)
     # results = [t.result() for t in completed]
     log.info('results: {!r}'.format(results))
-    print('gogo')
+    # print('gogo')
 
 
 def chunks(list_num, size):
@@ -113,15 +109,18 @@ if __name__ == '__main__':
 
     # Create a limited process pool.
     executor = concurrent.futures.ProcessPoolExecutor(
-        max_workers=3,
-        #max_workers=1,36.5468909740448
-        #4,34.53132891654968
+        max_workers=4,
+
     )
 
     event_loop = asyncio.get_event_loop()
     try:
         ss=time.time()
-        tasks = [run(executor, chunked) for chunked in chunks(all_num_list, 3)]
+        ##要将任务分组，让每个进程得到几乎均等的任务，并行的进行计算
+        url = 'http://127.0.0.1:5000'
+        # all_urls = [url for _ in range(100)]
+
+        tasks = [run(executor, chunked,[url]*100) for chunked in chunks(all_num_list, executor._max_workers)]
         res=event_loop.run_until_complete(asyncio.gather(*tasks))
         # event_loop.run_until_complete(
         #     # run_blocking_tasks(executor)
@@ -129,9 +128,7 @@ if __name__ == '__main__':
         #     run(executor)
         # )
         print('{} workers cost time final'.format(executor._max_workers),time.time()-ss)
-        # print('res',res)
-        # for each in res:
-        #     each.result()
+
     finally:
         event_loop.close()
     print(time.time()-start)#100个url,10进程耗时32s

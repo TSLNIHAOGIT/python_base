@@ -12,3 +12,5 @@ print('res',res)
 JOBS=12
 res=[each for each in range(JOBS, 0, -1)]
 print(res)
+
+print(['wwww,ax']*25)
