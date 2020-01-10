@@ -37,6 +37,7 @@ async def compute_dot():
 
 async def get(url):
     session = aiohttp.ClientSession()
+
     response = await session.get(url)
     result = await response.text()
     # result_temp=await compute_dot()
@@ -97,8 +98,10 @@ def chunks(list_num, size):
     for i in range(0, len(list_num), n):
 
         yield list_num[i:i + n]
-if __name__ == '__main__':
-    start=time.time()
+
+
+def main():
+    start = time.time()
     # Configure logging to show the id of the process
     # where the log message originates.
     logging.basicConfig(
@@ -115,23 +118,63 @@ if __name__ == '__main__':
 
     event_loop = asyncio.get_event_loop()
     try:
-        ss=time.time()
+        ss = time.time()
         ##要将任务分组，让每个进程得到几乎均等的任务，并行的进行计算
         url = 'http://127.0.0.1:5000'
         # all_urls = [url for _ in range(100)]
 
-        tasks = [run(executor, chunked,[url]*100) for chunked in chunks(all_num_list, executor._max_workers)]
-        res=event_loop.run_until_complete(asyncio.gather(*tasks))
+        tasks = [run(executor, chunked, [url] * 500) for chunked in chunks(all_num_list, executor._max_workers)]
+        res = event_loop.run_until_complete(asyncio.gather(*tasks))
         # event_loop.run_until_complete(
         #     # run_blocking_tasks(executor)
         #     # run_blocking_tasks_request(executor)
         #     run(executor)
         # )
-        print('{} workers cost time final'.format(executor._max_workers),time.time()-ss)
+        print('{} workers cost time final'.format(executor._max_workers), time.time() - ss)
 
     finally:
         event_loop.close()
-    print(time.time()-start)#100个url,10进程耗时32s
+    print(time.time() - start)  # 100个url,10进程耗时32s
+def main_load():
+    main()
+
+if __name__ == '__main__':
+    main()
+#     main_load()
+    # start=time.time()
+    # # Configure logging to show the id of the process
+    # # where the log message originates.
+    # logging.basicConfig(
+    #     level=logging.INFO,
+    #     format='PID %(process)5s %(name)18s: %(message)s',
+    #     stream=sys.stderr,
+    # )
+    #
+    # # Create a limited process pool.
+    # executor = concurrent.futures.ProcessPoolExecutor(
+    #     max_workers=4,
+    #
+    # )
+    #
+    # event_loop = asyncio.get_event_loop()
+    # try:
+    #     ss=time.time()
+    #     ##要将任务分组，让每个进程得到几乎均等的任务，并行的进行计算
+    #     url = 'http://127.0.0.1:5000'
+    #     # all_urls = [url for _ in range(100)]
+    #
+    #     tasks = [run(executor, chunked,[url]*25) for chunked in chunks(all_num_list, executor._max_workers)]
+    #     res=event_loop.run_until_complete(asyncio.gather(*tasks))
+    #     # event_loop.run_until_complete(
+    #     #     # run_blocking_tasks(executor)
+    #     #     # run_blocking_tasks_request(executor)
+    #     #     run(executor)
+    #     # )
+    #     print('{} workers cost time final'.format(executor._max_workers),time.time()-ss)
+    #
+    # finally:
+    #     event_loop.close()
+    # print(time.time()-start)#100个url,10进程耗时32s
 
 '''
 这个程序虽然能运行但是逻辑上不是我想要的，因为这里开一个进程时，就是按照顺序进行的，并没有异步的进行

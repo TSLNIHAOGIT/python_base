@@ -6,7 +6,7 @@ count_uid=0
 @app.route('/')
 def index():
     global count_uid
-    time.sleep(3)
+    time.sleep(1)
     count_uid=count_uid+1
     return 'Hello!'+str(count_uid)
 
