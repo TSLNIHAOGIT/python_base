@@ -22,7 +22,8 @@ from core.ocr_detection import ocr_rotation
 from . import rotation_content_judg
 import asyncio
 import logging
-
+from socket import error as SocketError
+import errno
 __all__ = ('image_deal',)
 
 # crnn_model_path = './models/crnn_Rec_done_99.pth'
@@ -41,8 +42,8 @@ __all__ = ('image_deal',)
 # else:
 #     model.load_state_dict(torch.load(crnn_model_path, map_location='cpu'))
 #     logger.info('CRNN model loaded.')
-
-
+#global set_method
+#set_method=True
 if not (torch.cuda.is_available() and config.IS_USE_CUDA):
   crnn_model_path = './models/crnn_Rec_done_99.pth'
   alphabet = alphabets.alphabet
@@ -51,6 +52,8 @@ if not (torch.cuda.is_available() and config.IS_USE_CUDA):
   model = crnn.CRNN(32, 1, nclass, 256)
   model.load_state_dict(torch.load(crnn_model_path, map_location='cpu'))
   logger.info('CRNN model loaded.')
+else:
+  logger.info('will CRNN model loaded with gpu.')
 
 def load_model_with_cuda():
    crnn_model_path = './models/crnn_Rec_done_99.pth'
@@ -188,7 +191,7 @@ def sub_loop(each_params_list,model):
   return results
 
 async def run(executor, params_list=None):
-    
+
     if torch.cuda.is_available() and config.IS_USE_CUDA:
          s_t=time.time()
          model = load_model_with_cuda()
@@ -229,8 +232,13 @@ def recognization(self):
     # 多线程
     if self.parallel == 1:
         # 构建线程池, 线程池默认线程是cpu核数*5， (os.cpu_count() or 1)*5
-          if torch.cuda.is_available() and config.IS_USE_CUDA:
-             mp.set_start_method('spawn')
+          if torch.cuda.is_available() and config.IS_USE_CUDA :#and set_method:
+             #mp.set_start_method('spawn')
+             try:
+                mp.set_start_method('spawn')
+                #set_method=False
+             except RuntimeError:
+                pass
           with ProcessPoolExecutor(max_workers=max_workers) as recog_executor:
             new_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(new_loop)
@@ -276,7 +284,7 @@ def recognization(self):
                  all_task_params_groups.extend(chunks(all_task_params_e,recog_executor._max_workers))
               if len_c>0:
                 all_task_params_groups.extend(chunks(all_task_params_c,recog_executor._max_workers))
-              
+
               #if torch.cuda.is_available() and config.IS_USE_CUDA:
               #  if len_e>0:
               #    all_task_params_groups.extend(chunks(all_task_params_e,recog_executor._max_workers))
@@ -367,12 +375,12 @@ def result_class_sencod(self, result):
 
 async def recog_box2word(param):
     # model=load_model_with_cuda()
-    global model
-    if torch.cuda.is_available() and config.IS_USE_CUDA:
-      model = param['model']
+    #global model
+    if not  (torch.cuda.is_available() and config.IS_USE_CUDA):
+      global model
+      model = model
     else:
-      #global model
-      model=model
+      model = param['model']
     self = param['self']
     d = param['d']
     type = param['type']
