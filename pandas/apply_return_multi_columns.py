@@ -24,10 +24,15 @@ def add_subtract_series(a, b):
   # print('pd.Series\n',pd.Series((a + b, a - b)))
   return pd.Series((a + b, a - b))
 
+
+def add_subtract_expand(a, b):
+  # print('pd.Series\n',pd.Series((a + b, a - b)))
+  return [a + b, a - b]
+
 df[['sum_series', 'difference_series']] = df.apply(
     lambda row: add_subtract_series(row['a'], row['b']), axis=1)
 
-df[['sum_list', 'difference_list']] = df.apply(
+dd= df.apply(
     lambda row: add_subtract_list(row['a'], row['b']), axis=1)
 
 
@@ -36,5 +41,11 @@ df[['sum', 'difference']] = df.apply(
     lambda row: pd.Series(add_subtract(row['a'], row['b'])), axis=1)
 
 
+df[['sum', 'difference']] = df.apply(
+    lambda row: add_subtract_expand(row['a'], row['b']), axis=1,result_type="expand")
+
+df['sum'], df['difference'] =zip(*df.apply(lambda row: add_subtract_expand(row['a'], row['b']), axis=1))
+
 if __name__=='__main__':
     print(df)
+    # print('dd={},type(dd)={}'.format(dd,type(dd)))
