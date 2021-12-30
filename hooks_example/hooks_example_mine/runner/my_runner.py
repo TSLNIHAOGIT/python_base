@@ -41,9 +41,12 @@ class MyRunner(object):
 
     def register_my_hook(self, exercise_config):
         self.register_exercise_hook(exercise_config)
+        # self.register_other_hook(other_config)
 
     def run(self):
         print('开始启动我的一天')
+        #执行所有hooks实例中的before_run方法
         self.call_hook('before_run')
+        # 执行所有hooks实例中的after_run方法
         self.call_hook('after_run')
         print('~~睡觉~~')
