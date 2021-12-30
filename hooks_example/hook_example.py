@@ -25,6 +25,12 @@ class HOOK:
         else:
             print('{}:今天没啥事，去锻炼30分钟'.format(sys._getframe().f_code.co_name))
 class Runner(object):
+    '''
+    1.Runner 对象初始化
+    2.注册各类 Hook 到 Runner 中
+    3.调用 Runner 的 resume 或者 load_checkpoint 方法对权重进行加载
+    4.运行给定的工作流，此时才真正开启了工作流
+    '''
     def __init__(self, ):
         pass
         self._hooks = []
