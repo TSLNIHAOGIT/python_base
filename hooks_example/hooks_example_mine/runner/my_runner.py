@@ -28,6 +28,7 @@ class MyRunner(object):
         hook = build_from_cfg(hook_cfg, HOOKS)
         self.register_hook(hook)
 
+    #self就是MyRunner类的实例
     def call_hook(self, hook_name):
         for hook in self._hooks:
             #geattr获取属性，返回的是一个函数，输入参数调用函数显示结果

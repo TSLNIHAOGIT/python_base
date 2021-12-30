@@ -5,6 +5,8 @@ HOOKS = Registry('hook')
 
 
 class Hook:
+    def __init__(self,**kwargs):
+        pass
     stages = ('before_run', 'before_train_epoch', 'before_train_iter',
               'after_train_iter', 'after_train_epoch', 'before_val_epoch',
               'before_val_iter', 'after_val_iter', 'after_val_epoch',

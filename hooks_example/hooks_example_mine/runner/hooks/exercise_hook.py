@@ -4,6 +4,7 @@ from .hook import HOOKS, Hook
 class ExerciseHook(Hook):
 
     def __init__(self, **kwargs):
+        print('kwargs',kwargs)
         super(ExerciseHook, self).__init__(**kwargs)
 
     def before_run(self, runner):

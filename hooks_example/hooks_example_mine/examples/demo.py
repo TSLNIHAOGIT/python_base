@@ -7,7 +7,7 @@ Out[3]: Registry(name=food, items={'Rice': <class 'hooks_example.regestry_eg.bui
 
 '''
 if __name__ == '__main__':
-    exercise_config = dict(type='ExerciseHook')
+    exercise_config = dict(type='ExerciseHook',name = 'exercise')
     runner = MyRunner()
     runner.register_my_hook(exercise_config)
     runner.run()
