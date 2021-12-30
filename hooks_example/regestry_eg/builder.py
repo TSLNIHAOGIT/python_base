@@ -31,7 +31,15 @@ class Rice():
     def __init__(self, name,taste):
         self.name = name
         self.taste = taste
+class Rice1(Rice):
+    def __init__(self):
+        super(Rice1,self).__init__()
+        self.r1='你好'
 
+class Rice2(Rice):
+    def __init__(self):
+        super(Rice2,self).__init__()
+        self.r2 = '我好'
 
 @FOOD.register_module()
 class Apple():

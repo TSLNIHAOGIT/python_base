@@ -57,7 +57,7 @@ if __name__ == '__main__':
         trainset, batch_size=128, shuffle=True, num_workers=2)
 
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    logger = get_logger('mmcv')
+    logger = get_logger('mmcv_0')
     # runner is a scheduler to manage the training
     runner = EpochBasedRunner(
         model,
@@ -75,6 +75,10 @@ if __name__ == '__main__':
     # save log periodically and multiple hooks can be used simultaneously
     log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook')])
     # register hooks to runner and those hooks will be invoked automatically
+    #添加各种Hook类实例到runner中的self._hooks列表中
+    #如hook = mmcv_0.build_from_cfg(lr_config, HOOKS)通过HOOKS注册器，获取Lr类实例，其中HOOKS是已经注册过的，HOOKS = Registry('hook')
+    #且hoos包的init文件中，导入各个类时会将这些类也注册到HOOKS中
+    # self.register_hook(hook, priority='VERY_HIGH')将类实例添加到self._hooks列表中
     runner.register_training_hooks(
         lr_config=lr_config,
         optimizer_config=optimizer_config,
