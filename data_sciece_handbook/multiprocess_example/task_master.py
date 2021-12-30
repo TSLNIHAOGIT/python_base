@@ -1,47 +1,33 @@
-import random, time, queue
+import time, sys, queue
 from multiprocessing.managers import BaseManager
-from multiprocessing import freeze_support
-
-# 建立2个队列，一个发送，一个接收
-task_queue = queue.Queue()
-result_queue = queue.Queue()
-
-def get_task():
-    return task_queue
-
-def get_result():
-    return result_queue
 
 class QueueManager(BaseManager): pass
-# 服务器的管理器上注册2个共享队列
-QueueManager.register('get_task', callable=get_task)
-QueueManager.register('get_result', callable=get_result)
-# 设置端口，地址默认为空。验证码authkey需要设定。
-manager = QueueManager(address=('localhost', 5000), authkey=b'abc')
 
-def manager_run():
-    manager.start()
-    # 通过管理器访问共享队列。
-    task = manager.get_task()
-    result = manager.get_result()
+# 从网络上的服务器上获取Queue，所以注册时只提供服务器上管理器注册的队列的名字:
+QueueManager.register('get_task')
+QueueManager.register('get_result')
 
-    #对队列进行操作, 往task队列放进任务。
-    for value in range(10):
-        n = random.randint(0,100)
-        print('Put task %d' % n)
-        task.put(n)
-    # 从result队列取出结果
-    print('Try get result...')
+server_addr = '127.0.0.1'
+# server_addr = '113.251.50.193'
+authkey=b'abc'
+# authkey=b'123'
+print('Connect to server %s...' % server_addr)
+# b'abc'相当于'abc'.encode('ascii'),类型是bytes
+m = QueueManager(address=(server_addr, 5000), authkey=b'abc')
+# 连接服务器
+m.connect()
+# 获得服务器上的队列对象
+task = m.get_task()
+result = m.get_result()
+
+for value in range(10):
     try:
-        for value in range(10):
-            r = result.get(timeout=100)
-            print('Result: %s' % r)
+        n = task.get(timeout=1)
+        print('run task %d * %d...' % (n, n))
+        r = '%d * %d = %d' % (n , n, n*n)
+        time.sleep(1)
+        result.put(r)
     except queue.Empty:
-        print('result is empty')
-    # 关闭管理器。
-    manager.shutdown()
-    print('master exit.')
+        print('task queue is empty')
 
-if __name__ == '__main__':
-    freeze_support()
-    manager_run()
+print('worker exit.')
