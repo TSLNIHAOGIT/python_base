@@ -8,8 +8,8 @@ class LearningHook(Hook):
         super(LearningHook, self).__init__(**kwargs)
 
     def before_run(self, runner):
-        print('学习前要先锻炼')
-        print('runner is:',runner)
+        print('2.1学习前要先锻炼')
+        # print('runner is:',runner)
     def after_run(self, runner):
-        print('学习后要去吃饭')
-        print('runner is:',runner)
+        print('2.2学习后要去吃饭')
+        # print('runner is:',runner)
