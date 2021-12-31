@@ -1,5 +1,5 @@
 from .hooks import HOOKS, Hook
-from  hooks_example.hooks_example_mine.utils import build_from_cfg
+from  ..utils import build_from_cfg
 class MyRunner(object):
     '''
     1.Runner 对象初始化
@@ -47,6 +47,11 @@ class MyRunner(object):
         self.register_exercise_hook(exercise_config)
         self.register_learning_hook(learning_config)
         # self.register_other_hook(other_config)
+
+    def register_my_hook_auto(self, **params_config):
+        for name ,data_config in params_config.items():
+            hook = build_from_cfg(data_config, HOOKS)
+            self.register_hook(hook)
 
     def run(self):
         print('开始启动我的一天')
