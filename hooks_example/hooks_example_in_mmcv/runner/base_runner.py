@@ -14,7 +14,7 @@ from .checkpoint import load_checkpoint
 from .dist_utils import get_dist_info
 from .hooks import HOOKS, Hook
 from .log_buffer import LogBuffer
-from .priority import Priority, get_priority
+from hooks_example.hooks_example_mine.runner.priority import Priority, get_priority
 from .utils import get_time_str
 
 

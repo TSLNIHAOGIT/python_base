@@ -1,5 +1,6 @@
 from .hooks import HOOKS, Hook
 from  ..utils import build_from_cfg
+from .priority import Priority, get_priority
 class MyRunner(object):
     '''
     1.Runner 对象初始化
@@ -10,11 +11,38 @@ class MyRunner(object):
     def __init__(self ):
         pass
         self._hooks = []
+    def register_hook(self, hook, priority='NORMAL'):
+        """Register a hook into the hook list.
 
-    def register_hook(self, hook):
-        # 这里不做优先级判断，直接在头部插入HOOK
-        # self._hooks.insert(0, hook)
-        self._hooks.append(hook)
+        The hook will be inserted into a priority queue, with the specified
+        priority (See :class:`Priority` for details of priorities).
+        For hooks with the same priority, they will be triggered in the same
+        order as they are registered.
+
+        Args:
+            hook (:obj:`Hook`): The hook to be registered.
+            priority (int or str or :obj:`Priority`): Hook priority.
+                Lower value means higher priority.
+        """
+        assert isinstance(hook, Hook)
+        if hasattr(hook, 'priority'):
+            raise ValueError('"priority" is a reserved attribute for hooks')
+        priority = get_priority(priority)
+        hook.priority = priority
+        # insert the hook to a sorted list
+        inserted = False
+        for i in range(len(self._hooks) - 1, -1, -1):
+            if priority >= self._hooks[i].priority:
+                self._hooks.insert(i + 1, hook)
+                inserted = True
+                break
+        if not inserted:
+            self._hooks.insert(0, hook)
+
+    # def register_hook(self, hook):
+    #     # 这里不做优先级判断，直接在头部插入HOOK
+    #     # self._hooks.insert(0, hook)
+    #     self._hooks.append(hook)
     def register_hook_from_cfg(self, hook_cfg):
         """Register a hook from its cfg.
 
@@ -42,7 +70,6 @@ class MyRunner(object):
     def register_learning_hook(self,learning_config):
         hook = build_from_cfg(learning_config,HOOKS)
         self.register_hook(hook)
-
     def register_my_hook(self, exercise_config,learning_config):
         self.register_exercise_hook(exercise_config)
         self.register_learning_hook(learning_config)
@@ -51,7 +78,7 @@ class MyRunner(object):
     def register_my_hook_auto(self, **params_config):
         for name ,data_config in params_config.items():
             hook = build_from_cfg(data_config, HOOKS)
-            self.register_hook(hook)
+            self.register_hook(hook,priority=data_config['priority'])
 
     def run(self):
         print('开始启动我的一天')

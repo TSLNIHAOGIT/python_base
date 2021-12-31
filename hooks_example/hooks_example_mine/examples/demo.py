@@ -9,8 +9,9 @@ Out[3]: Registry(name=food, items={'Rice': <class 'hooks_example.regestry_eg.bui
 if __name__ == '__main__':
     #类的名称和初始化参数
     params_config = dict(
-        exercise_config=dict(type='ExerciseHook',name = 'exercise'),
-        learning_config=dict(type='LearningHook', name='learning')
+        exercise_config=dict(type='ExerciseHook',name = 'exercise',priority='NORMAL'),
+        learning_config=dict(type='LearningHook', name='learning',priority='HIGHEST'),
+        enjoy_config=dict(type='EnjoyHook', name='enjoy', priority='HIGH')
     )
 
     runner = MyRunner()
