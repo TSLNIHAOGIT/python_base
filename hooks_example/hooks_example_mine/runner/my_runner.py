@@ -13,7 +13,8 @@ class MyRunner(object):
 
     def register_hook(self, hook):
         # 这里不做优先级判断，直接在头部插入HOOK
-        self._hooks.insert(0, hook)
+        # self._hooks.insert(0, hook)
+        self._hooks.append(hook)
     def register_hook_from_cfg(self, hook_cfg):
         """Register a hook from its cfg.
 
@@ -38,9 +39,13 @@ class MyRunner(object):
     def register_exercise_hook(self,exercise_config):
         hook = build_from_cfg(exercise_config,HOOKS)
         self.register_hook(hook)
+    def register_learning_hook(self,learning_config):
+        hook = build_from_cfg(learning_config,HOOKS)
+        self.register_hook(hook)
 
-    def register_my_hook(self, exercise_config):
+    def register_my_hook(self, exercise_config,learning_config):
         self.register_exercise_hook(exercise_config)
+        self.register_learning_hook(learning_config)
         # self.register_other_hook(other_config)
 
     def run(self):
