@@ -18,6 +18,8 @@ lunch=dict(
 class COOKER():
     def __init__(self,food, fruit):
         print('今日饮食清单：{}, {}'.format(food, fruit))
+        print(f'food:{food}')
+        print(f'fruit:{fruit}')
         #build_food(food)返回的是类的实例，可以调用类的相关属性和方法
         self.food = build_food(food)
         self.fruit = build_fruit(fruit)

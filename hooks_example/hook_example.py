@@ -42,6 +42,7 @@ class Runner(object):
     def call_hook(self, hook_name):
         for hook in self._hooks:
             #geattr获取属性，返回的是一个函数，输入参数调用函数显示结果
+            # 相当于hook.before_lunch('para'),参数不一定是self,可以是其它的
             getattr(hook, hook_name)(self)
 
     def run(self):
@@ -58,5 +59,8 @@ class Runner(object):
 if __name__ == '__main__':
     runner = Runner()
     hook = HOOK()
+    #hook是类的一个实例，注册hook就把把实例插入到列表中
     runner.register_hook(hook)
+    #调用call_hook,读取列表中的hook实例,通过getattr(hook, hook_name)，
+    # 即通过hook实例的hook_name属性获取该属性，是一个函数，然后调用该函数
     runner.run()
